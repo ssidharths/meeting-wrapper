@@ -110,6 +110,14 @@ document.getElementById("scheduleAllBtn").addEventListener("click", () => {
   });
   
 
+  document.getElementById("sendEmailsBtn").addEventListener("click", () => {
+    fetch("/api/v1/reminder/email", { method: "POST" })
+      .then((res) => res.json())
+      .then((data) => showNotification(`📧 ${data.sent} emails sent`, "success"))
+      .catch(() => showNotification("❌ Failed to send emails", "error"));
+  });
+  
+
 function updateWebinarsTable() {
   const tbody = document.getElementById("webinarsTableBody");
   tbody.innerHTML = "";
