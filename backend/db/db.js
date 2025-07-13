@@ -1,9 +1,40 @@
 const sqlite3 = require('sqlite3').verbose();
-const db = new sqlite3.Database('webinars.db');
+const path = require('path');
+const DB_PATH = path.resolve(__dirname, '../webinars.db');
+
+const db = new sqlite3.Database(DB_PATH);
+
+function run(sql, params = []) {
+  return new Promise((resolve, reject) => {
+    db.run(sql, params, function (err) {
+      if (err) reject(err);
+      else resolve(this); // `this` = context of sqlite3 with lastID, changes
+    });
+  });
+}
+
+function all(sql, params = []) {
+  return new Promise((resolve, reject) => {
+    db.all(sql, params, (err, rows) => {
+      if (err) reject(err);
+      else resolve(rows);
+    });
+  });
+}
+
+function get(sql, params = []) {
+  return new Promise((resolve, reject) => {
+    db.get(sql, params, (err, row) => {
+      if (err) reject(err);
+      else resolve(row);
+    });
+  });
+}
+
 
 // Initialize database tables
-db.serialize(() => {
-  db.run(`CREATE TABLE IF NOT EXISTS webinars (
+async function init(){
+  await run (`CREATE TABLE IF NOT EXISTS webinars (
     id TEXT PRIMARY KEY,
     name TEXT NOT NULL,
     date TEXT NOT NULL,
@@ -18,7 +49,7 @@ db.serialize(() => {
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
   )`);
 
-  db.run(`CREATE TABLE IF NOT EXISTS attendees (
+  await run(`CREATE TABLE IF NOT EXISTS attendees (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     webinar_id TEXT,
     name TEXT NOT NULL,
@@ -28,7 +59,7 @@ db.serialize(() => {
     FOREIGN KEY (webinar_id) REFERENCES webinars (id)
   )`);
 
-  db.run(`CREATE TABLE IF NOT EXISTS attendance_tracking (
+  await run(`CREATE TABLE IF NOT EXISTS attendance_tracking (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     webinar_id TEXT,
     attendee_email TEXT,
@@ -38,7 +69,7 @@ db.serialize(() => {
     FOREIGN KEY (webinar_id) REFERENCES webinars (id)
   )`);
 
-  db.run(`CREATE TABLE IF NOT EXISTS reminders (
+  await run(`CREATE TABLE IF NOT EXISTS reminders (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     webinar_id TEXT,
     recipient_email TEXT,
@@ -49,4 +80,12 @@ db.serialize(() => {
     status TEXT DEFAULT 'pending',
     FOREIGN KEY (webinar_id) REFERENCES webinars (id)
   )`);
-});
+};
+
+module.exports = {
+  db,
+  init,
+  run,
+  all,
+  get,
+};

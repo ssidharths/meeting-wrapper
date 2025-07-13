@@ -1,4 +1,10 @@
-app.post('/api/upload-excel', upload.single('excel'), (req, res) => {
+const express = require('express');
+const router = express.Router();
+const upload = require('../utils/fileUploadConfig')
+const {processExcelFile} = require('../utils/excelProcessor')
+const db = require('../db/db')
+const {generateWebinarLinks} = require('../utils/webinarLinkGenerator')
+router.post('/', upload.single('excel'), (req, res) => {
     if (!req.file) {
       return res.status(400).json({ error: 'No file uploaded' });
     }
@@ -53,4 +59,6 @@ app.post('/api/upload-excel', upload.single('excel'), (req, res) => {
       res.status(500).json({ error: 'Failed to process Excel file' });
     }
   });
-  
+
+
+module.exports = router;

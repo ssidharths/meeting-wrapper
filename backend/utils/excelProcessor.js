@@ -1,11 +1,10 @@
-import { readFile, utils } from 'xlsx';
+const XLSX = require('xlsx');
 const { v4: uuidv4 } = require('uuid');
-
 function processExcelFile(filePath) {
-    const workbook = readFile(filePath);
+    const workbook = XLSX.readFile(filePath);
     const sheetName = workbook.SheetNames[0];
     const sheet = workbook.Sheets[sheetName];
-    const data = utils.sheet_to_json(sheet);
+    const data = XLSX.utils.sheet_to_json(sheet);
     
     return data.map(row => ({
       webinar_id: row['Webinar ID'] || uuidv4(),
@@ -22,3 +21,5 @@ function processExcelFile(filePath) {
       attendee_phone: row['Attendee Phone']
     }));
   }
+
+  module.exports = {processExcelFile}
