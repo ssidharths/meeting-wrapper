@@ -117,6 +117,13 @@ document.getElementById("scheduleAllBtn").addEventListener("click", () => {
       .catch(() => showNotification("❌ Failed to send emails", "error"));
   });
   
+  document.getElementById("sendWhatsAppBtn").addEventListener("click", () => {
+    fetch("/api/v1/reminder/whatsapp", { method: "POST" })
+      .then(res => res.json())
+      .then(data => showNotification(`📱 ${data.sent} WhatsApp messages sent`, "success"))
+      .catch(() => showNotification("❌ WhatsApp reminder failed", "error"));
+  });
+  
 
 function updateWebinarsTable() {
   const tbody = document.getElementById("webinarsTableBody");
