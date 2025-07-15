@@ -8,7 +8,11 @@ const webinarTracking = require('./routes/trackAttendance')
 const reportGeneration = require('./routes/generateAttendanceReport')
 const {init} = require('./db/db')
 const app = express();
-app.use(cors());
+app.use(cors({
+  origin: 'https://meeting-wrapper.netlify.app',
+  methods: ['GET', 'POST'],
+  credentials: true
+}));
 app.use(express.json());
 app.use(express.static('public'));
 
@@ -22,5 +26,5 @@ init().then(() => {
     app.use('/api/v1/reminder',sendReminder)
     app.use('/api/v1/join', webinarTracking )
     app.use('/api/v1/attendance',reportGeneration)
-    app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
+    app.listen(PORT, () => console.log(`Server running on ${PORT}`));
   });
