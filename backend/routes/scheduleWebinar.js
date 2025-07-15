@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../db/db');
+const logger = require('../utils/logger');
 
 router.post('/', async (req, res) => {
     try {
@@ -55,7 +56,7 @@ router.post('/', async (req, res) => {
       console.log(JSON.stringify(Array.from(webinarMap.values()), null, 2));
       res.json({ webinars: Array.from(webinarMap.values()) });
     } catch (err) {
-      console.error(err);
+      logger.error(err)
       res.status(500).json({ error: 'Failed to schedule webinars' });
     }
 });
@@ -106,7 +107,7 @@ router.post('/:id', async (req, res) => {
   
       res.json({ webinars: Array.from(webinarMap.values()) });
     } catch (err) {
-      console.error(err);
+      logger.error(err)
       res.status(500).json({ error: 'Failed to schedule webinar' });
     }
   });

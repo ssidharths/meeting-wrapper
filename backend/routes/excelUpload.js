@@ -5,6 +5,7 @@ const upload = require('../utils/fileUploadConfig');
 const db = require('../db/db');
 const { processExcelFile } = require('../utils/excelProcessor');
 const { v4: uuidv4 } = require('uuid');
+const logger = require('../utils/logger');
 
 router.post('/', upload.single('excel'), async (req, res) => {
   if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
@@ -51,7 +52,7 @@ router.post('/', upload.single('excel'), async (req, res) => {
       webinars: Array.from(webinars.values())
     });
   } catch (err) {
-    console.error(err);
+    logger.error(err)
     res.status(500).json({ error: 'Failed to process Excel' });
   }
 });

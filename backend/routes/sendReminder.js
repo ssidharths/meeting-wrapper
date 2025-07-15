@@ -3,6 +3,7 @@ const router = express.Router();
 const db = require('../db/db');
 const nodemailer = require('nodemailer');
 const twilio = require('twilio');
+const logger = require('../utils/logger');
 
 const TWILIO_SID = process.env.TWILIO_ACCOUNT_SID;
 const TWILIO_AUTH = process.env.TWILIO_AUTH_TOKEN;
@@ -66,7 +67,7 @@ router.post('/email', async (req, res) => {
               <p>This is a reminder for the upcoming webinar: <strong>${webinar.name}</strong></p>
               <p><strong>Date:</strong> ${webinar.date}</p>
               <p><strong>Time:</strong> ${webinar.time}</p>
-              <p><strong>Join Link:</strong> <a href="${webinar.attendee_link}">Click here to join</a></p>
+              <p><strong>Join Link:</strong> <a href="${process.env.APP_BASE_URL}/api/v1/join/${webinar.webinar_id}/${encodeURIComponent(attendee.email)}"></p>
               <p>See you there!</p>
             `
           };
@@ -96,7 +97,7 @@ router.post('/email', async (req, res) => {
   
       res.json({ message: 'Email reminders sent', sent: results.length });
     } catch (err) {
-      console.error('Failed to send emails', err);
+        logger.error(err)
       res.status(500).json({ error: 'Failed to send email reminders' });
     }
   });
@@ -139,7 +140,7 @@ router.post('/email', async (req, res) => {
       for (const webinar of webinarMap.values()) {
         // Send to attendees
         for (const attendee of webinar.attendees) {
-          const message = `Hi ${attendee.name}, reminder: "${webinar.name}" on ${webinar.date} at ${webinar.time}. Join: ${webinar.attendee_link}`;
+          const message = `Hi ${attendee.name}, reminder: "${webinar.name}" on ${webinar.date} at ${webinar.time}. Join: ${process.env.APP_BASE_URL}/api/v1/join/${webinar.webinar_id}/${encodeURIComponent(attendee.phone)}`;
           console.log(attendee.phone);
           
           const status = await sendWhatsApp(attendee.phone, message);
@@ -156,7 +157,7 @@ router.post('/email', async (req, res) => {
   
       res.json({ message: 'WhatsApp reminders sent', sent: results.length });
     } catch (err) {
-      console.error('Failed to send WhatsApp messages', err);
+        logger.error(err)
       res.status(500).json({ error: 'Failed to send WhatsApp reminders' });
     }
   });
@@ -170,7 +171,7 @@ router.post('/email', async (req, res) => {
       });
       return msg.sid;
     } catch (err) {
-      console.error(`WhatsApp error for ${phone}:`, err);
+      logger.error(err)
       return 'failed';
     }
   }

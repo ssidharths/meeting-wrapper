@@ -94,36 +94,36 @@ function scheduleWebinar(id) {
 }
 
 document.getElementById("scheduleAllBtn").addEventListener("click", () => {
-    fetch("/api/v1/schedule", {
-      method: "POST"
+  fetch("/api/v1/schedule", {
+    method: "POST",
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      webinars = data.webinars;
+      updateUI();
+      showNotification("All webinars scheduled successfully", "success");
     })
-      .then((res) => res.json())
-      .then((data) => {
-        webinars = data.webinars;
-        updateUI();
-        showNotification("All webinars scheduled successfully", "success");
-      })
-      .catch((err) => {
-        console.error(err);
-        showNotification("Failed to schedule all webinars", "error");
-      });
-  });
-  
+    .catch((err) => {
+      console.error(err);
+      showNotification("Failed to schedule all webinars", "error");
+    });
+});
 
-  document.getElementById("sendEmailsBtn").addEventListener("click", () => {
-    fetch("/api/v1/reminder/email", { method: "POST" })
-      .then((res) => res.json())
-      .then((data) => showNotification(`📧 ${data.sent} emails sent`, "success"))
-      .catch(() => showNotification("❌ Failed to send emails", "error"));
-  });
-  
-  document.getElementById("sendWhatsAppBtn").addEventListener("click", () => {
-    fetch("/api/v1/reminder/whatsapp", { method: "POST" })
-      .then(res => res.json())
-      .then(data => showNotification(`📱 ${data.sent} WhatsApp messages sent`, "success"))
-      .catch(() => showNotification("❌ WhatsApp reminder failed", "error"));
-  });
-  
+document.getElementById("sendEmailsBtn").addEventListener("click", () => {
+  fetch("/api/v1/reminder/email", { method: "POST" })
+    .then((res) => res.json())
+    .then((data) => showNotification(`📧 ${data.sent} emails sent`, "success"))
+    .catch(() => showNotification("❌ Failed to send emails", "error"));
+});
+
+document.getElementById("sendWhatsAppBtn").addEventListener("click", () => {
+  fetch("/api/v1/reminder/whatsapp", { method: "POST" })
+    .then((res) => res.json())
+    .then((data) =>
+      showNotification(`📱 ${data.sent} WhatsApp messages sent`, "success")
+    )
+    .catch(() => showNotification("❌ WhatsApp reminder failed", "error"));
+});
 
 function updateWebinarsTable() {
   const tbody = document.getElementById("webinarsTableBody");
@@ -143,11 +143,13 @@ function updateWebinarsTable() {
     ).toUpperCase()}</span></td>
       <td>
         <div class="link-container">
-          ${
-            webinar.attendee_link
-              ? `<a href="${webinar.attendee_link}" class="link-btn" target="_blank">👥 Attendee</a>`
-              : ""
-          }
+${
+  webinar.attendee_link
+    ? `<a href="/api/v1/join/${webinar.webinar_id}/${encodeURIComponent(
+        webinar.attendees[0]?.email || ""
+      )}" class="link-btn" target="_blank">👥 Attendee</a>`
+    : ""
+}
           ${
             webinar.presenter_link
               ? `<a href="${webinar.presenter_link}" class="link-btn" target="_blank">👨‍💼 Presenter</a>`
@@ -164,6 +166,11 @@ function updateWebinarsTable() {
   <button class="btn" style="font-size: 0.8em; padding: 5px 10px;" onclick="viewWebinarDetails('${
     webinar.webinar_id
   }')">View</button>
+  ${
+  webinar.status === "scheduled"
+    ? `<button class="btn btn-secondary" style="font-size: 0.8em; padding: 5px 10px;" onclick="downloadReport('${webinar.webinar_id}')">📥 Download Report</button>`
+    : ""
+}
 </td>
     `;
     tbody.appendChild(row);
@@ -200,6 +207,11 @@ function viewWebinarDetails(id) {
 function closeModal() {
   document.getElementById("webinarModal").style.display = "none";
 }
+
+function downloadReport(webinarId) {
+    window.open(`/api/v1/attendance/${webinarId}`, '_blank');
+  }
+  
 
 window.onclick = (e) => {
   if (e.target === document.getElementById("webinarModal")) closeModal();
