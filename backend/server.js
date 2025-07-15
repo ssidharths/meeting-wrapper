@@ -8,11 +8,7 @@ const webinarTracking = require('./routes/trackAttendance')
 const reportGeneration = require('./routes/generateAttendanceReport')
 const {init} = require('./db/db')
 const app = express();
-app.use(cors({
-  origin: 'https://meeting-wrapper.netlify.app',
-  methods: ['GET', 'POST'],
-  credentials: true
-}));
+app.use(cors);
 app.use(express.json());
 app.use(express.static('public'));
 
