@@ -144,10 +144,8 @@ function updateWebinarsTable() {
       <td>
         <div class="link-container">
 ${
-  webinar.attendee_link
-    ? `<a href="/api/v1/join/${webinar.webinar_id}/${encodeURIComponent(
-        webinar.attendees[0]?.email || ""
-      )}" class="link-btn" target="_blank">👥 Attendee</a>`
+    webinar.attendees.length
+    ? `<button class="link-btn" onclick="showAttendeeLinks('${webinar.webinar_id}')">👥 Attendee</button>`
     : ""
 }
           ${
@@ -216,3 +214,21 @@ function downloadReport(webinarId) {
 window.onclick = (e) => {
   if (e.target === document.getElementById("webinarModal")) closeModal();
 };
+
+function showAttendeeLinks(webinarId) {
+    const webinar = webinars.find(w => w.webinar_id === webinarId);
+    if (!webinar) return;
+  
+    const list = webinar.attendees.map(a => {
+      const joinUrl = `${location.origin}/api/v1/join/${webinarId}/${encodeURIComponent(a.email)}`;
+      return `<li><strong>${a.name}</strong> – <a href="${joinUrl}" target="_blank">${joinUrl}</a></li>`;
+    }).join("");
+  
+    document.getElementById("attendeeLinksList").innerHTML = list;
+    document.getElementById("attendeeLinksModal").style.display = "block";
+  }
+  
+  function closeAttendeeLinksModal() {
+    document.getElementById("attendeeLinksModal").style.display = "none";
+  }
+  

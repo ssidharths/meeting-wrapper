@@ -5,6 +5,7 @@ const logger = require('../utils/logger');
 
 router.post('/', async (req, res) => {
     try {
+      logger.info("::Enter schedule all webinar::")
         const webinars = await db.all(`
             SELECT * FROM webinars
             WHERE attendee_link IS NULL OR TRIM(attendee_link) = ''
@@ -56,14 +57,17 @@ router.post('/', async (req, res) => {
       console.log(JSON.stringify(Array.from(webinarMap.values()), null, 2));
       res.json({ webinars: Array.from(webinarMap.values()) });
     } catch (err) {
-      logger.error(err)
+      logger.error("Scheduling all webinars ERROR",err)
       res.status(500).json({ error: 'Failed to schedule webinars' });
     }
+    logger.info("::Exit schedule all webinar::")
+
 });
 
 router.post('/:id', async (req, res) => {
     const { id } = req.params;
     try {
+      logger.info("::Enter schedule webinary by id::")
       const attendeeLink = `https://meet.google.com/${Math.random().toString(36).substring(2, 10)}`;
       const presenterLink = `https://meet.google.com/${Math.random().toString(36).substring(2, 10)}?presenter=true`;
   
@@ -107,9 +111,11 @@ router.post('/:id', async (req, res) => {
   
       res.json({ webinars: Array.from(webinarMap.values()) });
     } catch (err) {
-      logger.error(err)
+      logger.error("Failed to schedule webinar by id",err)
       res.status(500).json({ error: 'Failed to schedule webinar' });
     }
+    logger.info("::Exit schedule webinary by id::")
+
   });
   
 module.exports = router;

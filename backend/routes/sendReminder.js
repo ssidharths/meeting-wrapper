@@ -12,8 +12,7 @@ const client = twilio(TWILIO_SID, TWILIO_AUTH);
 
 router.post('/email', async (req, res) => {
     try {
-        console.log("Inside email");
-        
+        logger.info("::Enter email notifications")        
       const webinars = await db.all(`
         SELECT w.*, a.name AS attendee_name, a.email AS attendee_email
         FROM webinars w
@@ -67,7 +66,7 @@ router.post('/email', async (req, res) => {
               <p>This is a reminder for the upcoming webinar: <strong>${webinar.name}</strong></p>
               <p><strong>Date:</strong> ${webinar.date}</p>
               <p><strong>Time:</strong> ${webinar.time}</p>
-              <p><strong>Join Link:</strong> <a href="${process.env.APP_BASE_URL}/api/v1/join/${webinar.webinar_id}/${encodeURIComponent(attendee.email)}"></p>
+<p><strong>Join Link:</strong> <a href="${process.env.APP_BASE_URL}/api/v1/join/${webinar.webinar_id}/${encodeURIComponent(attendee.email)}">Click here to join</a></p>
               <p>See you there!</p>
             `
           };
@@ -100,10 +99,12 @@ router.post('/email', async (req, res) => {
         logger.error(err)
       res.status(500).json({ error: 'Failed to send email reminders' });
     }
+    logger.info("::Exit email notifications")        
   });
 
   router.post('/whatsapp', async (req, res) => {
     try {
+    logger.info("::Enter WhatsApp notifications")        
       const webinars = await db.all(`
         SELECT w.*, a.name AS attendee_name, a.phone AS attendee_phone
         FROM webinars w
@@ -141,8 +142,6 @@ router.post('/email', async (req, res) => {
         // Send to attendees
         for (const attendee of webinar.attendees) {
           const message = `Hi ${attendee.name}, reminder: "${webinar.name}" on ${webinar.date} at ${webinar.time}. Join: ${process.env.APP_BASE_URL}/api/v1/join/${webinar.webinar_id}/${encodeURIComponent(attendee.phone)}`;
-          console.log(attendee.phone);
-          
           const status = await sendWhatsApp(attendee.phone, message);
           results.push({ phone: attendee.phone, status });
         }
@@ -154,12 +153,13 @@ router.post('/email', async (req, res) => {
           results.push({ phone: webinar.presenter_phone, status });
         }
       }
-  
       res.json({ message: 'WhatsApp reminders sent', sent: results.length });
     } catch (err) {
-        logger.error(err)
+        logger.error("Couldnt send Whatsapp notifications",err)
       res.status(500).json({ error: 'Failed to send WhatsApp reminders' });
     }
+    logger.info("::Exit WhatsApp notifications")        
+
   });
   
   async function sendWhatsApp(phone, body) {
@@ -171,7 +171,7 @@ router.post('/email', async (req, res) => {
       });
       return msg.sid;
     } catch (err) {
-      logger.error(err)
+      logger.error("Error in sending Whatsapp message",err)
       return 'failed';
     }
   }

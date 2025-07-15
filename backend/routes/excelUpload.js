@@ -8,6 +8,7 @@ const { v4: uuidv4 } = require('uuid');
 const logger = require('../utils/logger');
 
 router.post('/', upload.single('excel'), async (req, res) => {
+  logger.info("::Enter upload::")
   if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
 
   try {
@@ -55,6 +56,7 @@ router.post('/', upload.single('excel'), async (req, res) => {
     logger.error(err)
     res.status(500).json({ error: 'Failed to process Excel' });
   }
+  logger.info("::Exit upload::")
 });
 
 module.exports = router;

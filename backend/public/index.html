@@ -61,7 +61,6 @@
                     <button class="btn btn-success" id="scheduleAllBtn">📅 Schedule All Webinars</button>
                     <button class="btn btn-warning" id="sendEmailsBtn">📧 Send Email Reminders</button>
                     <button class="btn btn-warning" id="sendWhatsAppBtn">📱 Send WhatsApp Reminders</button>
-                    <button class="btn btn-danger" id="generateReportBtn">📊 Generate Report</button>
                 </div>
             </div>
 
@@ -103,6 +102,14 @@
     <div class="notification" id="notification"></div>
 
 <script src="script.js"></script>
+<div class="modal" id="attendeeLinksModal">
+    <div class="modal-content">
+      <h3>Attendee Join Links</h3>
+      <ul id="attendeeLinksList"></ul>
+      <button class="btn" onclick="closeAttendeeLinksModal()">Close</button>
+    </div>
+  </div>
+  
 
 </body>
 </html>
